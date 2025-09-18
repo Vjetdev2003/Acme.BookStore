@@ -25,7 +25,7 @@ public class BookStoreApplicationModule : AbpModule
     {
         Configure<AbpAutoMapperOptions>(options =>
         {
-            options.AddMaps<BookStoreApplicationModule>();
+            options.AddMaps<BookStoreApplicationAutoMapperProfile>();
         });
     }
 }

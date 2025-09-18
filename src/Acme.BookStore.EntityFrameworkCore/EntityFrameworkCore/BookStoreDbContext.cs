@@ -18,6 +18,7 @@ using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Acme.BookStore.Books;
 using Volo.Abp.EntityFrameworkCore.Modeling;
 using Acme.BookStore.Authors;
+using Acme.BookStore.Orders;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -60,6 +61,7 @@ public class BookStoreDbContext :
     #endregion
     public DbSet<Book> Books { get; set; }
     public DbSet<Author> Authors { get; set; }
+    public DbSet<Order> Orders { get; set; }
     public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options)
         : base(options)
     {
@@ -123,6 +125,19 @@ public class BookStoreDbContext :
 
                 b.HasIndex(x => x.Name);
             });
+            builder.Entity<Order>(b =>
+            {
+                b.ToTable("Orders");
+                b.ConfigureByConvention();
+
+                b.Property(x => x.CustomerName)
+                    .IsRequired()
+                    .HasMaxLength(OrderConsts.MaxCustomerNameLength);
+
+                b.Property(x => x.TotalPrice)
+                    .HasColumnType("float"); // dùng float thay vì decimal
+            });
+
 
         }
     }

@@ -8,7 +8,14 @@ public static class BookStorePermissions
     // other permissions...
 
     // *** ADDED a NEW NESTED CLASS ***
-
+    public static class Orders
+    {
+        public const string Default = GroupName + ".Orders";
+        public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
+        public const string UpdateState = Default + ".UpdateState";
+    }
     public static class Books
     {
         public const string Default = GroupName + ".Books";
