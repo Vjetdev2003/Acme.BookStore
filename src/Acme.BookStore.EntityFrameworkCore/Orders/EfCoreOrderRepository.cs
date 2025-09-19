@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading;
 using System.Threading.Tasks;
 using Acme.BookStore.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -28,4 +29,10 @@ public class EfCoreOrderRepository
             .Take(maxResultCount)
             .ToListAsync();
     }
+    public override async Task<Order> GetAsync(Guid id, bool includeDetails = true, CancellationToken cancellationToken = default)
+    {
+        var dbSet = await GetDbSetAsync();
+        return await dbSet.Include(o => o.Items).FirstAsync(o => o.Id == id, cancellationToken);
+    }
+
 }

@@ -14,11 +14,13 @@ public class OrderManager : DomainService
         _orderRepository = orderRepository;
     }
 
-    public async Task<Order> CreateAsync(DateTime orderDate,string customerName, float totalPrice)
+    public async Task<Order> CreateAsync(DateTime orderDate, string customerName)
     {
-        Check.NotNullOrWhiteSpace(customerName, nameof(customerName));
-
-        return new Order(GuidGenerator.Create(), orderDate,customerName, totalPrice);
+        return new Order(
+            GuidGenerator.Create(),
+            orderDate,
+            customerName
+        );
     }
 
     public Task ChangeCustomerNameAsync(Order order, string newName)

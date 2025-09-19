@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Acme.BookStore.Permissions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 
@@ -23,11 +24,23 @@ public class OrderAppService : BookStoreAppService, IOrderAppService
     [Authorize(BookStorePermissions.Orders.Create)]
     public async Task<OrderDto> CreateAsync(CreateOrderDto input)
     {
-        var order = await _orderManager.CreateAsync(input.OrderDate, input.CustomerName, input.TotalPrice);
+        try
+        {
+            var order = await _orderManager.CreateAsync(input.OrderDate, input.CustomerName); // luôn 0 trước
+            foreach (var item in input.Items)
+            {
+                order.AddItem(item.BookId, item.Quantity, item.UnitPrice);
+            }
 
-        await _orderRepository.InsertAsync(order);
+            await _orderRepository.InsertAsync(order, autoSave: true);
 
-        return ObjectMapper.Map<Order, OrderDto>(order);
+            return ObjectMapper.Map<Order, OrderDto>(order);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error while creating order");
+            throw;
+        }
     }
 
     [Authorize(BookStorePermissions.Orders.Delete)]
@@ -38,7 +51,7 @@ public class OrderAppService : BookStoreAppService, IOrderAppService
 
     public async Task<OrderDto> GetAsync(Guid id)
     {
-        var order = await _orderRepository.GetAsync(id);
+        var order = await _orderRepository.GetAsync(id, includeDetails: true);
         return ObjectMapper.Map<Order, OrderDto>(order);
     }
 

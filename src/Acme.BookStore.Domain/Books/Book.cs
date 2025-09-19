@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Acme.BookStore.Books;
@@ -13,4 +14,7 @@ public class Book : AuditedAggregateRoot<Guid>
 
     public float Price { get; set; }
     public Guid AuthorId { get; set; }
+
+    public ICollection<OrderItem> OrderItems { get; set; }
+
 }

@@ -21,5 +21,17 @@ public class BookStoreApplicationAutoMapperProfile : Profile
         CreateMap<CreateOrderDto, Order>();
         CreateMap<UpdateOrderDto, Order>();
 
+        CreateMap<OrderItem, OrderItemDto>();
+        CreateMap<CreateOrderItemDto, OrderItem>();
+        CreateMap<UpdateOrderItemDto, OrderItem>();
+
+        CreateMap<Order, OrderDto>();
+        CreateMap<OrderItem, OrderItemDto>();
+
+        CreateMap<CreateOrderDto, Order>();
+        CreateMap<CreateOrderItemDto, OrderItem>();
+
+
+
     }
 }

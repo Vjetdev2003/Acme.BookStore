@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Acme.BookStore.Orders;
@@ -12,5 +13,7 @@ public class CreateOrderDto
     [StringLength(OrderConsts.MaxCustomerNameLength)]
     public string CustomerName { get; set; } = string.Empty;
 
-    public float TotalPrice { get; set; }
+
+    public List<CreateOrderItemDto> Items { get; set; } = new();
+
 }

@@ -1,44 +1,45 @@
-﻿using System;
-using Volo.Abp;
-using Volo.Abp.Domain.Entities.Auditing;
+﻿using Acme.BookStore.Orders;
+using System.Collections.Generic;
+using System;
+using Volo.Abp.Domain.Entities;
+using Volo.Abp.Guids;
+using System.Linq;
 
-namespace Acme.BookStore.Orders;
-
-public class Order : FullAuditedAggregateRoot<Guid>
+public class Order : Entity<Guid>
 {
     public DateTime OrderDate { get; private set; }
     public string CustomerName { get; private set; }
-    public float TotalPrice { get; set; }
+    public float TotalPrice { get;  set; }
 
-    private Order()
-    {
-        /* For ORM/Deserialization */
-    }
+    public List<OrderItem> Items { get; private set; } = new();
 
-    internal Order(Guid id, DateTime orderDate, string customerName, float totalPrice)
-        : base(id)
+    private Order() { } // EF Core cần
+
+    public Order(Guid id, DateTime orderDate, string customerName) : base(id)
     {
-        SetCustomerName(customerName);
         OrderDate = orderDate;
-        TotalPrice = totalPrice;
+        CustomerName = customerName;
     }
 
-    internal Order ChangeCustomerName(string name)
+    public void AddItem(Guid bookId, int quantity, float unitPrice)
     {
-        SetCustomerName(name);
-        return this;
-    }
-    public void ChangeOrderDate(DateTime newDate)
-    {
-        OrderDate = newDate;
+        var item = new OrderItem(Id,Guid.NewGuid(), bookId, quantity, unitPrice);
+        Items.Add(item);
+        RecalculateTotal();
     }
 
-    private void SetCustomerName(string name)
+    private void RecalculateTotal()
     {
-        CustomerName = Check.NotNullOrWhiteSpace(
-            name,
-            nameof(name),
-            maxLength: OrderConsts.MaxCustomerNameLength
-        );
+        TotalPrice = Items.Sum(x => x.UnitPrice * x.Quantity);
+    }
+
+    public void ChangeCustomerName(string newName)
+    {
+        CustomerName = newName;
+    }
+
+    public void ChangeOrderDate(DateTime date)
+    {
+        OrderDate = date;
     }
 }

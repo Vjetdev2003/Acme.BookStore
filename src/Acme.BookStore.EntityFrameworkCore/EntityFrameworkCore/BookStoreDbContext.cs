@@ -62,6 +62,7 @@ public class BookStoreDbContext :
     public DbSet<Book> Books { get; set; }
     public DbSet<Author> Authors { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
     public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options)
         : base(options)
     {
@@ -130,15 +131,33 @@ public class BookStoreDbContext :
                 b.ToTable("Orders");
                 b.ConfigureByConvention();
 
-                b.Property(x => x.CustomerName)
-                    .IsRequired()
-                    .HasMaxLength(OrderConsts.MaxCustomerNameLength);
+                b.Property(x => x.CustomerName).IsRequired().HasMaxLength(OrderConsts.MaxCustomerNameLength);
+                b.Property(x => x.TotalPrice).HasColumnType("float");
 
-                b.Property(x => x.TotalPrice)
-                    .HasColumnType("float"); // dùng float thay vì decimal
+                b.HasMany(x => x.Items)
+                 .WithOne(i => i.Order)   // 🔑 Chỉ rõ navigation
+                 .HasForeignKey(i => i.OrderId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
+            builder.Entity<OrderItem>(b =>
+            {
+                b.ToTable("OrderItems");
+                b.ConfigureByConvention();
 
+                b.Property(x => x.Quantity).IsRequired();
+                b.Property(x => x.UnitPrice).HasColumnType("float").IsRequired();
+
+                b.HasOne(i => i.Book)
+                 .WithMany(bk => bk.OrderItems)
+                 .HasForeignKey(i => i.BookId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(i => i.Order)
+                 .WithMany(o => o.Items)
+                 .HasForeignKey(i => i.OrderId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
